@@ -1,4 +1,4 @@
-import {createPenPreview} from "./pen-preview.js";
+import {createPenPreview} from "./pen-preview.js?v=2";
 import {createOrderForm} from "./envio-pedido.js";
 "use strict";
 
@@ -6,7 +6,7 @@ import {createOrderForm} from "./envio-pedido.js";
 // No coloques contraseñas de correo ni claves privadas en JavaScript.
 const CONFIG = Object.freeze({ maxCantidad: 999, correoPedidos: "luis_leonleon@hotmail.com" });
 const COLORS = Object.freeze({
-  black: { name: "Negro ónix", body: "#252a29", ink: "#eadba5" },
+  black: { name: "Negro ónix", body: "#101213", ink: "#eadba5" },
   silver: { name: "Plata", body: "#b7bcc1", ink: "#293f37" },
   blue: { name: "Azul profundo", body: "#244c72", ink: "#f1dfac" },
   rose: { name: "Rosa cobre", body: "#b77968", ink: "#30241f" }

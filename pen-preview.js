@@ -3,8 +3,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 export function createPenPreview(container) {
 const state={texto:'Tu nombre',fuente:'cursive',color:'#252a29',colorTexto:'#eadba5',diseno:'ninguno',cantidad:1};
 const fontFamilies={Arial:'Arial, sans-serif',Georgia:'Georgia, serif',cursive:'\"Segoe Script\", \"Sabonis Manuscrita\", cursive',monospace:'\"Courier New\", monospace'};
-let sending=false, capturing=false, backgroundLoaded=false;
-const cart=[];
+let capturing=false;
 const scene=new THREE.Scene();
 const camera=new THREE.PerspectiveCamera(26,1,.1,150);
 const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});
@@ -20,30 +19,35 @@ const ec=envCanvas.getContext('2d');ec.fillStyle='#767975';ec.fillRect(0,0,1024,
 ec.fillStyle='#f9faf7';ec.fillRect(40,20,240,380);ec.fillRect(550,40,150,350);
 ec.fillStyle='#222523';ec.fillRect(370,0,70,512);ec.fillRect(870,0,100,512);
 const environment=new THREE.CanvasTexture(envCanvas);environment.mapping=THREE.EquirectangularReflectionMapping;environment.colorSpace=THREE.SRGBColorSpace;scene.environment=environment;
-const chrome=new THREE.MeshPhysicalMaterial({color:0xdfe3e2,metalness:1,roughness:.11,envMapIntensity:1.4});
-const material=new THREE.MeshPhysicalMaterial({color:state.color,roughness:.3,metalness:.18,clearcoat:1,clearcoatRoughness:.18});
-const group=new THREE.Group();group.rotation.z=-Math.PI/2;group.position.y=.52;scene.add(group);
-function cylinder(top,bottom,height,y,mat=chrome){const mesh=new THREE.Mesh(new THREE.CylinderGeometry(top,bottom,height,80),mat);mesh.position.y=y;group.add(mesh);return mesh;}
-// Bolígrafo ejecutivo: punta de acero, agarre negro, doble anillo, cuerpo y clip.
-cylinder(.295,.275,2.1,-2.0,material);
-cylinder(.285,.035,.94,-3.52);
-cylinder(.045,.012,.16,-4.03,chrome);
-cylinder(.303,.303,.18,-.91);
-cylinder(.307,.307,.06,-.73);
-cylinder(.292,.303,3.78,1.19,material);
-cylinder(.303,.303,.10,3.13);
-cylinder(.218,.218,.68,3.52);
-cylinder(.231,.231,.1,3.88);
-const clip=new THREE.Mesh(new THREE.CapsuleGeometry(.055,2.0,8,24),chrome);clip.position.set(-.405,2.14,.13);group.add(clip);
-const bridge=new THREE.Mesh(new THREE.BoxGeometry(.19,.10,.12),chrome);bridge.position.set(-.32,3.17,.13);group.add(bridge);
-const clipEnd=new THREE.Mesh(new THREE.SphereGeometry(.058,24,16),chrome);clipEnd.scale.set(.9,1.25,1);clipEnd.position.set(-.405,1.08,.13);group.add(clipEnd);
-// Grabado sobre la cara frontal del cuerpo derecho.
-const textCanvas=document.createElement('canvas');textCanvas.width=256;textCanvas.height=2048;
+// Modelo cerrado de la referencia: tapa corta, cuerpo largo y terminaciones doradas.
+const gold=new THREE.MeshPhysicalMaterial({color:0xe5b84b,metalness:1,roughness:.17,envMapIntensity:1.25});
+const material=new THREE.MeshPhysicalMaterial({color:state.color,roughness:.14,metalness:.08,clearcoat:1,clearcoatRoughness:.10});
+const group=new THREE.Group();group.rotation.z=-Math.PI/2;scene.add(group);
+function cylinder(top,bottom,height,y,mat=gold){const mesh=new THREE.Mesh(new THREE.CylinderGeometry(top,bottom,height,96),mat);mesh.position.y=y;group.add(mesh);return mesh;}
+function profile(points,mat){const geometry=new THREE.LatheGeometry(points.map(([radius,y])=>new THREE.Vector2(radius,y)),96);const mesh=new THREE.Mesh(geometry,mat);group.add(mesh);return mesh;}
+// Tapa a la izquierda; el clip y el grabado comparten la cara frontal visible.
+profile([[0,-4.02],[.13,-4.01],[.25,-3.93],[.31,-3.78],[.35,-3.65],[.365,-3.38],[.365,-.62],[.352,-.49],[0,-.49]],material);
+profile([[0,-4.18],[.12,-4.17],[.23,-4.09],[.28,-3.99],[.30,-3.83],[.29,-3.72],[0,-3.72]],gold);
+for(const y of [-4.03,-3.97,-3.91,-3.85]) cylinder(.301,.301,.018,y,gold);
+cylinder(.365,.365,.19,-.48,gold);
+// Barril largo suavemente afinado, sin punta de escritura expuesta.
+profile([[0,-.38],[.344,-.38],[.35,-.26],[.345,.2],[.332,1.25],[.305,2.45],[.267,3.45],[.237,3.84],[.22,3.94],[0,3.94]],material);
+profile([[0,3.81],[.23,3.81],[.231,3.95],[.18,4.10],[.09,4.17],[0,4.18]],gold);
+for(const y of [3.92,3.98,4.04]) cylinder(.226-(y-3.92)*.35,.226-(y-3.92)*.35,.018,y,gold);
+// Clip ancho con arco bajo y punta redondeada, como el de la fotografía.
+const clipShape=new THREE.Shape();
+clipShape.moveTo(-.34,-3.60);clipShape.bezierCurveTo(-.47,-3.43,-.50,-3.13,-.50,-2.65);
+clipShape.bezierCurveTo(-.50,-2.1,-.49,-1.46,-.43,-1.06);
+clipShape.quadraticCurveTo(-.385,-.90,-.36,-1.06);
+clipShape.bezierCurveTo(-.43,-1.82,-.43,-2.76,-.39,-3.20);clipShape.quadraticCurveTo(-.36,-3.43,-.30,-3.52);clipShape.closePath();
+const clip=new THREE.Mesh(new THREE.ExtrudeGeometry(clipShape,{depth:.10,bevelEnabled:true,bevelThickness:.025,bevelSize:.018,bevelSegments:4,curveSegments:32}),gold);clip.position.z=.08;group.add(clip);
+// Grabado únicamente en la cara frontal de la tapa, debajo del clip.
+const textCanvas=document.createElement('canvas');textCanvas.width=512;textCanvas.height=2048;
 const ctx=textCanvas.getContext('2d');const texture=new THREE.CanvasTexture(textCanvas);texture.colorSpace=THREE.SRGBColorSpace;
-const label=new THREE.Mesh(new THREE.CylinderGeometry(.309,.309,2.9,128,1,true,-.72,1.44),new THREE.MeshBasicMaterial({map:texture,toneMapped:false,transparent:true,side:THREE.DoubleSide,depthWrite:false}));label.position.y=1.18;group.add(label);
+const label=new THREE.Mesh(new THREE.CylinderGeometry(.371,.371,2.48,128,1,true,-.82,1.64),new THREE.MeshBasicMaterial({map:texture,toneMapped:false,transparent:true,side:THREE.DoubleSide,depthWrite:false}));label.position.y=-2.12;group.add(label);
 function draw(){
- ctx.clearRect(0,0,256,2048);ctx.save();ctx.translate(128,1024);ctx.rotate(-Math.PI/2);ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=state.colorTexto;
- let size=state.fuente==='cursive'?164:130;const text=state.texto.trim()||'Tu nombre';
+ ctx.clearRect(0,0,512,2048);ctx.save();ctx.translate(256,1024);ctx.rotate(-Math.PI/2);ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=state.colorTexto;
+ let size=state.fuente==='cursive'?320:265;const text=state.texto.trim()||'Tu nombre';
  do{ctx.font=`${state.fuente==='cursive'?'italic ':''}${size}px ${fontFamilies[state.fuente]}`;if(ctx.measureText(text).width<=1880)break;size-=4;}while(size>36);
  ctx.fillText(text,0,state.diseno==='ninguno'?0:-29);
  const decoration={estrellas:'✦   ✦',corazones:'♥   ♥',flores:'✿   ✿',puntos:'•   •'}[state.diseno];
@@ -58,7 +62,7 @@ function resize(){
 
 }
 new ResizeObserver(resize).observe(container);resize();
-function animate(){requestAnimationFrame(animate);if(!sending&&!capturing)controls.update();renderer.render(scene,camera);}animate();
+function animate(){requestAnimationFrame(animate);if(!capturing)controls.update();renderer.render(scene,camera);}animate();
 
 return { update(design){state.texto=design.text||'Tu nombre';state.fuente=({script:'cursive',serif:'Georgia',sans:'Arial',mono:'monospace'})[design.font];state.color=design.body;state.colorTexto=design.ink;draw();},async capture(){capturing=true;controls.enabled=false;try{if(document.fonts)await document.fonts.ready;draw();renderer.render(scene,camera);return renderer.domElement.toDataURL('image/png');}finally{capturing=false;controls.enabled=true;}} };
 }
