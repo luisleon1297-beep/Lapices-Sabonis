@@ -1,23 +1,33 @@
-# SABONIS — GitHub Pages
+# SABONIS — Diseño aprobado para GitHub Pages
 
-Página estática lista para subir a GitHub. Incluye Three.js, fuentes y personalizador. No necesita npm ni servidor Node.js al publicarse.
+Conserva la distribución clara y verde de dos columnas. Los cuatro modelos se eligen mediante tarjetas con miniaturas reales del visor 3D: Dorado, Brillante, Mate y Delgado. Al seleccionar una tarjeta, la vista principal muestra ese modelo.
 
-## Publicar
+Todos permiten negro, azul profundo, rojo y blanco cálido. La iluminación y el material tienen reflejos más suaves; el acabado mate es diferente del brillante. El modelo delgado lleva el grabado en la cara opuesta al clip, visible por defecto. Los otros modelos conservan el grabado frontal bajo el clip.
 
-1. Crea un repositorio público llamado `sabonis` y marca la opción de agregar README.
-2. En `Add file > Upload files`, arrastra TODO el contenido de esta carpeta, incluyendo `assets` y `vendor`. `index.html` debe quedar en la raíz del repositorio, no dentro de otra carpeta. No subas el ZIP.
-3. Confirma con `Commit changes`.
-4. En `Settings > Pages`, elige `Deploy from a branch`, rama `main` y carpeta `/(root)`. Pulsa `Save`.
-5. Cuando termine el despliegue, abre la dirección que aparece en Pages. Será similar a `https://TU_USUARIO.github.io/sabonis/`.
+## Actualizar tu página
 
-## Correo
+Descomprime este ZIP y sube su contenido al repositorio con `Add file > Upload files > Commit changes`.
 
-El destinatario es `luis_leonleon@hotmail.com`. Crea un pedido de prueba y completa el envío en la pestaña de FormSubmit. Si llega un correo de activación, pulsa `Activate Form`; revisa también Correo no deseado. Envía otro pedido después de activar.
+Reemplaza `index.html`, `style.css`, `script.js`, `pen-preview.js` y `envio-pedido.js`. Sube también la nueva carpeta `assets/modelos` con sus cuatro PNG. Mantén los recursos existentes de `assets` y `vendor`. `index.html` debe estar en la raíz.
 
-El correo contiene datos del cliente, cantidades, especificaciones de cada diseño y PNG adjuntos iguales a las capturas del visor al añadirlos. La tabla del correo la genera FormSubmit. Los datos y archivos se transmiten a ese servicio para entregarlos.
+Para publicar desde cero, crea un repositorio público, sube todo el contenido descomprimido y configura `Settings > Pages > Deploy from a branch > main > /(root) > Save`.
 
-El carrito permanece guardado: la página no puede confirmar la recepción del correo desde la pestaña externa. Revisa el correo antes de volver a enviar para evitar duplicados.
+Esta versión estática no necesita npm ni Node.js cuando está publicada. Para probar en el PC, abre la carpeta con Live Server; abrir el HTML con doble clic no carga correctamente los módulos.
 
-No subas `.env`, contraseñas, tokens ni `node_modules` del proyecto anterior. Este paquete solo contiene los archivos públicos necesarios.
+## Pedido y correo
 
-Se verificó en un servidor estático con ruta de subcarpeta y envío interceptado; no se publicó en una cuenta GitHub ni se enviaron correos reales durante estas pruebas.
+El cliente elige modelo, color, texto, tipografía y cantidad. El pedido distingue productos con diferente modelo aunque tengan el mismo texto. El carrito puede restaurarse en este navegador cuando su almacenamiento está disponible.
+
+Al añadir un producto se guarda una captura del visor con el diseño, ángulo y zoom actuales. FormSubmit recibe los datos del cliente, el detalle de cada producto y sus PNG exactos como adjuntos; los envía a `luis_leonleon@hotmail.com`.
+
+Pulsa Enviar solicitud de pedido y completa la verificación de FormSubmit en la pestaña que se abre. Si recibes un correo de activación, pulsa Activate Form en Hotmail; revisa también Correo no deseado y envía otro pedido de prueba tras activar.
+
+La página mantiene el carrito porque no puede confirmar la recepción desde la pestaña externa. Revisa el correo antes de reenviar para evitar duplicados. No necesitas Azure, contraseñas ni configuración SMTP. Los datos y archivos del pedido pasan por FormSubmit para su entrega.
+
+## Límites y pruebas
+
+Hasta 10 diseños, 999 unidades por diseño y 6 MB combinados de imágenes. No procesa pagos ni guarda los pedidos en una base de datos.
+
+Se comprobó la selección de tarjetas, las 16 combinaciones de modelo/color, la separación de cuatro modelos con el mismo texto, restauración y edición del carrito, el detalle del correo y PNG idénticos en un envío interceptado, y la vista móvil. No se enviaron correos reales durante la prueba.
+
+Los modelos 3D aproximan las fotografías aportadas, sin dimensiones de fabricación. Se utiliza una versión nueva del carrito para evitar que diseños antiguos con otra cara de grabado envíen imágenes incorrectas. Vuelve a añadir los productos anteriores.

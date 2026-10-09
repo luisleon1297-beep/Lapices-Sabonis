@@ -1,5 +1,5 @@
-import {createPenPreview} from "./pen-preview.js?v=3";
-import {createOrderForm} from "./envio-pedido.js?v=3";
+import {createPenPreview} from "./pen-preview.js?v=4";
+import {createOrderForm} from "./envio-pedido.js?v=4";
 "use strict";
 
 // Correo que recibe los pedidos mediante FormSubmit; no requiere credenciales SMTP.
@@ -13,9 +13,9 @@ const MODELS = Object.freeze({
 });
 const COLORS = Object.freeze({
   black: { name: "Negro", body: "#101213", ink: "#eadba5" },
-  blue: { name: "Azul", body: "#174bad", ink: "#f4e4bd" },
-  red: { name: "Rojo", body: "#b51e2d", ink: "#f4e4bd" },
-  white: { name: "Blanco", body: "#f4f3ee", ink: "#35332e" }
+  blue: { name: "Azul", body: "#163c79", ink: "#f4e4bd" },
+  red: { name: "Rojo", body: "#9e2030", ink: "#f4e4bd" },
+  white: { name: "Blanco", body: "#eeeae2", ink: "#35332e" }
 });
 const FONTS = Object.freeze({
   script: { name: "Cursiva elegante", family: '"Segoe Script", "Sabonis Manuscrita", cursive', style: "italic" },
@@ -30,7 +30,7 @@ const fontSelect = $("font-select");
 const quantityInput = $("quantity");
 const designForm = $("design-form");
 const orderForm = $("order-form");
-const storageKey = "sabonis-pedido-v3";
+const storageKey = "sabonis-pedido-v4";
 let cart = [];
 let sending = false;
 let capturing = false;
@@ -46,7 +46,7 @@ function saveCart() {
   try { localStorage.setItem(storageKey, JSON.stringify(cart)); } catch { /* Modo privado o espacio no disponible. */ }
 }
 function getDesign() {
-  return { model: $("model-select").value, text: textInput.value.trim(), font: fontSelect.value, color: designForm.elements.color.value, quantity: Number(quantityInput.value) };
+  return { model: designForm.elements.modelo.value, text: textInput.value.trim(), font: fontSelect.value, color: designForm.elements.color.value, quantity: Number(quantityInput.value) };
 }
 function notify(message) {
   $("toast").textContent = message;
@@ -135,7 +135,7 @@ function renderCart() {
     edit.disabled = sending;
     edit.setAttribute("aria-label", `Usar el diseño ${item.text} en el personalizador`);
     edit.addEventListener("click", () => {
-      $("model-select").value=item.model;
+      designForm.elements.modelo.value=item.model;
       textInput.value = item.text; fontSelect.value = item.font; quantityInput.value = item.quantity;
       designForm.elements.color.value = item.color;
       updatePreview(); $("personalizar").scrollIntoView({behavior:"smooth"});

@@ -6,8 +6,8 @@
   <meta name="description" content="Personaliza tu bolígrafo SABONIS: elige color, tipografía y grabado, y solicita tu pedido.">
   <title>SABONIS — Tu firma, tu estilo</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231f5146'/%3E%3Ctext x='16' y='23' text-anchor='middle' fill='white' font-family='Georgia' font-size='25'%3ES%3C/text%3E%3C/svg%3E">
-  <link rel="stylesheet" href="style.css">
-  <script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/controls/OrbitControls.js":"./vendor/OrbitControls.js"}}</script><script type="module" src="script.js?v=3"></script>
+  <link rel="stylesheet" href="style.css?v=4">
+  <script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/controls/OrbitControls.js":"./vendor/OrbitControls.js"}}</script><script type="module" src="script.js?v=4"></script>
 </head>
 <body>
   <header class="header">
@@ -22,20 +22,25 @@
         <div class="product-view">
           <div id="canvas3d" aria-label="Vista 3D del bolígrafo. Arrastra para girarlo y usa la rueda para acercarlo."></div>
         </div>
-        <p id="model-label" class="model-label">Clásico dorado</p><div class="preview-meta"><span id="color-label">Negro ónix</span><span id="font-label">Cursiva elegante</span></div>
+        <p id="model-label" class="model-label">Delgado con detalles plateados</p><div class="preview-meta"><span id="color-label">Negro</span><span id="font-label">Cursiva elegante</span></div>
         <p class="preview-note">El grabado se adapta al espacio disponible. La vista previa es orientativa.</p>
         <div class="help-card"><span class="help-icon" aria-hidden="true">✦</span><div><strong>Pequeños detalles, grandes recuerdos.</strong><p>Prueba tu nombre o una frase corta. Cada diseño puede tener su propia cantidad.</p></div></div>
       </div>
       <form id="design-form" class="design-panel">
         <div class="panel-heading"><p class="eyebrow">HECHO A TU MEDIDA</p><h2>Diseña tu lápiz</h2></div>
-        <div class="field-step"><span class="step-number">01</span><div class="step-content"><label for="model-select">Elige el tipo de lápiz</label><select id="model-select" name="modelo"><option value="golden">Clásico dorado</option><option value="glossy">Brillante con detalles negros</option><option value="matte">Mate con detalles negros</option><option value="slim">Delgado con detalles plateados</option></select></div></div>
+        <div class="field-step"><span class="step-number">01</span><div class="step-content"><fieldset class="model-field"><legend>Elige el tipo de lápiz</legend><div class="model-cards">
+          <label class="model-card"><input type="radio" name="modelo" value="golden"><span class="model-card-content"><img src="assets/modelos/golden.png" alt="Lápiz con detalles dorados"><span>Dorado</span><span class="model-check" aria-hidden="true">✓</span></span></label>
+          <label class="model-card"><input type="radio" name="modelo" value="glossy"><span class="model-card-content"><img src="assets/modelos/glossy.png" alt="Lápiz brillante con detalles negros"><span>Brillante</span><span class="model-check" aria-hidden="true">✓</span></span></label>
+          <label class="model-card"><input type="radio" name="modelo" value="matte"><span class="model-card-content"><img src="assets/modelos/matte.png" alt="Lápiz mate con detalles negros"><span>Mate</span><span class="model-check" aria-hidden="true">✓</span></span></label>
+          <label class="model-card"><input type="radio" name="modelo" value="slim" checked><span class="model-card-content"><img src="assets/modelos/slim.png" alt="Lápiz delgado con detalles plateados"><span>Delgado</span><span class="model-check" aria-hidden="true">✓</span></span></label>
+        </div></fieldset></div></div>
         <div class="field-step"><span class="step-number">02</span><div class="step-content"><label for="engraving-input">¿Qué quieres grabar?</label><input id="engraving-input" name="grabado" placeholder="Ej. Alejandro Varela" maxlength="32" required autocomplete="off" aria-describedby="text-hint"><div class="field-hint" id="text-hint"><span>Un nombre o mensaje corto</span><span id="char-count">0 / 32</span></div></div></div>
         <div class="field-step"><span class="step-number">03</span><div class="step-content"><label for="font-select">Elige tu tipografía</label><select id="font-select" name="tipografia"><option value="script">Cursiva elegante</option><option value="serif">Clásica serif</option><option value="sans">Moderna sans serif</option><option value="mono">Estilo máquina de escribir</option></select><div class="font-sample" id="font-sample" aria-hidden="true">El arte de escribir</div></div></div>
         <div class="field-step"><span class="step-number">04</span><div class="step-content"><fieldset class="colors"><legend>Elige el color del lápiz</legend><div class="swatches">
           <label class="swatch" style="--swatch:#101213"><input type="radio" name="color" value="black" checked><span></span><b>Negro</b></label>
-          <label class="swatch" style="--swatch:#174bad"><input type="radio" name="color" value="blue"><span></span><b>Azul</b></label>
-          <label class="swatch" style="--swatch:#b51e2d"><input type="radio" name="color" value="red"><span></span><b>Rojo</b></label>
-          <label class="swatch" style="--swatch:#f4f3ee"><input type="radio" name="color" value="white"><span></span><b>Blanco</b></label>
+          <label class="swatch" style="--swatch:#163c79"><input type="radio" name="color" value="blue"><span></span><b>Azul</b></label>
+          <label class="swatch" style="--swatch:#9e2030"><input type="radio" name="color" value="red"><span></span><b>Rojo</b></label>
+          <label class="swatch" style="--swatch:#eeeae2"><input type="radio" name="color" value="white"><span></span><b>Blanco</b></label>
         </div></fieldset></div></div>
         <div class="design-bottom"><div><label for="quantity">Cantidad</label><div class="quantity-control"><button type="button" id="qty-minus" aria-label="Reducir cantidad">−</button><input id="quantity" name="cantidad" type="number" min="1" max="999" value="1" required><button type="button" id="qty-plus" aria-label="Aumentar cantidad">+</button></div></div><p>¿Más de un diseño?<br><span>Agrégalos uno a uno.</span></p></div>
         <button class="button primary" type="submit">Añadir este diseño al pedido <span aria-hidden="true">+</span></button>
