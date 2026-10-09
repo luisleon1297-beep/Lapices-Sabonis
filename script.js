@@ -1,5 +1,5 @@
-import {createPenPreview} from "./pen-preview.js?v=4";
-import {createOrderForm} from "./envio-pedido.js?v=4";
+import {createPenPreview} from "./pen-preview.js?v=5";
+import {createOrderForm} from "./envio-pedido.js?v=5";
 "use strict";
 
 // Correo que recibe los pedidos mediante FormSubmit; no requiere credenciales SMTP.
@@ -30,7 +30,7 @@ const fontSelect = $("font-select");
 const quantityInput = $("quantity");
 const designForm = $("design-form");
 const orderForm = $("order-form");
-const storageKey = "sabonis-pedido-v4";
+const storageKey = "sabonis-pedido-v5";
 let cart = [];
 let sending = false;
 let capturing = false;

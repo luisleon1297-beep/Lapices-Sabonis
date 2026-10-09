@@ -2,7 +2,7 @@
 
 Conserva la distribución clara y verde de dos columnas. Los cuatro modelos se eligen mediante tarjetas con miniaturas reales del visor 3D: Dorado, Brillante, Mate y Delgado. Al seleccionar una tarjeta, la vista principal muestra ese modelo.
 
-Todos permiten negro, azul profundo, rojo y blanco cálido. La iluminación y el material tienen reflejos más suaves; el acabado mate es diferente del brillante. El modelo delgado lleva el grabado en la cara opuesta al clip, visible por defecto. Los otros modelos conservan el grabado frontal bajo el clip.
+Todos permiten negro, azul profundo, rojo y blanco cálido. La iluminación y el material tienen reflejos más suaves; el acabado mate es diferente del brillante. Todos los modelos muestran el grabado frontal bajo el clip, con el capuchón a la izquierda y la punta a la derecha. Al cambiar de modelo, la vista vuelve a la cara del grabado.
 
 ## Actualizar tu página
 

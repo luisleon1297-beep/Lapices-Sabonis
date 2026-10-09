@@ -34,7 +34,7 @@ function addClip(trim,side=-1,slender=false){
  shape.bezierCurveTo(x-.14,side*1.65,x-.13,side*1.26,x-.08,side*1.12);
  shape.quadraticCurveTo(x-.02,side*.99,x+.02,side*1.13);
  shape.bezierCurveTo(x-.05,side*1.76,x-.05,side*2.73,x-.02,side*3.15);shape.quadraticCurveTo(x,side*3.43,x+.04,side*3.54);shape.closePath();
- const mesh=new THREE.Mesh(new THREE.ExtrudeGeometry(shape,{depth:.10,bevelEnabled:true,bevelThickness:.025,bevelSize:.018,bevelSegments:4,curveSegments:24}),trim);mesh.position.z=.08;if(slender){mesh.rotation.y=-Math.PI/2;mesh.position.set(-.02,0,-.06);}group.add(mesh);
+ const mesh=new THREE.Mesh(new THREE.ExtrudeGeometry(shape,{depth:.10,bevelEnabled:true,bevelThickness:.025,bevelSize:.018,bevelSegments:4,curveSegments:24}),trim);mesh.position.z=.08;group.add(mesh);
 }
 let label;
 const labelMaterial=new THREE.MeshBasicMaterial({map:null,toneMapped:false,transparent:true,side:THREE.FrontSide,depthWrite:false});
@@ -76,16 +76,16 @@ const clip=new THREE.Mesh(new THREE.ExtrudeGeometry(clipShape,{depth:.10,bevelEn
   profile([[0,3.5],[.25,3.5],[.18,3.84],[.07,4.10],[0,4.13]],trim);addClip(trim);
   radius=.397;height=2.40;
  } else {
-  // Modelo delgado: tapa y grabado a la derecha, detalles cromados.
-  profile([[0,-4.08],[.06,-4.04],[.16,-3.72],[.235,-3.36],[.265,-2.5],[.28,-.25],[0,-.25]],material);
-  profile([[0,-4.2],[.055,-4.15],[.13,-3.91],[.17,-3.72],[0,-3.72]],trim);
-  cylinder(.286,.286,.13,-.17,trim);
-  profile([[0,-.10],[.283,-.10],[.287,.2],[.287,3.70],[.278,3.91],[.23,3.99],[0,3.99]],material);
-  addClip(trim,1,true);radius=.294;engravingY=1.97;height=2.7;
+  // Modelo delgado: tapa y grabado a la izquierda, detalles cromados.
+  profile([[0,.25],[.28,.25],[.265,2.5],[.235,3.36],[.16,3.72],[.06,4.04],[0,4.08]],material);
+  profile([[0,3.72],[.17,3.72],[.13,3.91],[.055,4.15],[0,4.2]],trim);
+  cylinder(.286,.286,.13,.17,trim);
+  profile([[0,-3.99],[.23,-3.99],[.278,-3.91],[.287,-3.70],[.287,-.2],[.283,.10],[0,.10]],material);
+  addClip(trim,-1,true);radius=.294;engravingY=-1.97;height=2.7;
  }
  label=new THREE.Mesh(new THREE.CylinderGeometry(radius,radius,height,128,1,true,-.82,1.64),labelMaterial);label.position.y=engravingY;group.add(label);
 }
-// En el modelo delgado, el clip queda en la cara posterior y el grabado en la opuesta.
+// Todos los modelos muestran el grabado en la cara frontal, bajo el clip.
 const textCanvas=document.createElement('canvas');textCanvas.width=512;textCanvas.height=2048;
 const ctx=textCanvas.getContext('2d');const texture=new THREE.CanvasTexture(textCanvas);texture.colorSpace=THREE.SRGBColorSpace;
 labelMaterial.map=texture;
@@ -109,5 +109,5 @@ function resize(){
 new ResizeObserver(resize).observe(container);resize();
 function animate(){requestAnimationFrame(animate);if(!capturing)controls.update();renderer.render(scene,camera);}animate();
 
-return { update(design){state.thumbnail=!!design.thumbnail;if(state.model!==design.model){state.model=design.model;buildModel(state.model);}state.texto=design.text||'Tu nombre';state.fuente=({script:'cursive',serif:'Georgia',sans:'Arial',mono:'monospace'})[design.font];state.color=design.body;state.colorTexto=design.ink;draw();},async capture(){capturing=true;controls.enabled=false;try{if(document.fonts)await document.fonts.ready;draw();renderer.render(scene,camera);return renderer.domElement.toDataURL('image/png');}finally{capturing=false;controls.enabled=true;}} };
+return { update(design){state.thumbnail=!!design.thumbnail;if(state.model!==design.model){state.model=design.model;buildModel(state.model);controls.enableDamping=false;controls.reset();resize();controls.update();controls.enableDamping=true;}state.texto=design.text||'Tu nombre';state.fuente=({script:'cursive',serif:'Georgia',sans:'Arial',mono:'monospace'})[design.font];state.color=design.body;state.colorTexto=design.ink;draw();},async capture(){capturing=true;controls.enabled=false;try{if(document.fonts)await document.fonts.ready;draw();renderer.render(scene,camera);return renderer.domElement.toDataURL('image/png');}finally{capturing=false;controls.enabled=true;}} };
 }
