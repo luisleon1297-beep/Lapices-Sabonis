@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 export function createPenPreview(container) {
-const state={texto:'Tu nombre',fuente:'cursive',color:'#252a29',colorTexto:'#eadba5',diseno:'ninguno',cantidad:1};
+const state={model:'golden',texto:'Tu nombre',fuente:'cursive',color:'#252a29',colorTexto:'#eadba5',diseno:'ninguno',cantidad:1};
 const fontFamilies={Arial:'Arial, sans-serif',Georgia:'Georgia, serif',cursive:'\"Segoe Script\", \"Sabonis Manuscrita\", cursive',monospace:'\"Courier New\", monospace'};
 let capturing=false;
 const scene=new THREE.Scene();
@@ -25,6 +25,25 @@ const material=new THREE.MeshPhysicalMaterial({color:state.color,roughness:.14,m
 const group=new THREE.Group();group.rotation.z=-Math.PI/2;scene.add(group);
 function cylinder(top,bottom,height,y,mat=gold){const mesh=new THREE.Mesh(new THREE.CylinderGeometry(top,bottom,height,96),mat);mesh.position.y=y;group.add(mesh);return mesh;}
 function profile(points,mat){const geometry=new THREE.LatheGeometry(points.map(([radius,y])=>new THREE.Vector2(radius,y)),96);const mesh=new THREE.Mesh(geometry,mat);group.add(mesh);return mesh;}
+const darkTrim=new THREE.MeshPhysicalMaterial({color:0x151719,metalness:.65,roughness:.2});
+const silverTrim=new THREE.MeshPhysicalMaterial({color:0xcdd2d4,metalness:1,roughness:.16});
+function addClip(trim,side=-1,slender=false){
+ const shape=new THREE.Shape();
+ const x=slender?-.30:-.39;
+ shape.moveTo(x,side*3.64);shape.bezierCurveTo(x-.13,side*3.40,x-.14,side*2.70,x-.14,side*2.25);
+ shape.bezierCurveTo(x-.14,side*1.65,x-.13,side*1.26,x-.08,side*1.12);
+ shape.quadraticCurveTo(x-.02,side*.99,x+.02,side*1.13);
+ shape.bezierCurveTo(x-.05,side*1.76,x-.05,side*2.73,x-.02,side*3.15);shape.quadraticCurveTo(x,side*3.43,x+.04,side*3.54);shape.closePath();
+ const mesh=new THREE.Mesh(new THREE.ExtrudeGeometry(shape,{depth:.10,bevelEnabled:true,bevelThickness:.025,bevelSize:.018,bevelSegments:4,curveSegments:24}),trim);mesh.position.z=.08;group.add(mesh);
+}
+let label;
+const labelMaterial=new THREE.MeshBasicMaterial({map:null,toneMapped:false,transparent:true,side:THREE.FrontSide,depthWrite:false});
+function buildModel(model){
+ for(const child of [...group.children]){group.remove(child);child.geometry?.dispose();}
+ const trim=model==='golden'?gold:model==='slim'?silverTrim:darkTrim;
+ material.roughness=model==='matte'?.82:.14;material.clearcoat=model==='matte'?.08:1;material.metalness=model==='matte'?0:.08;
+ let radius=.371,engravingY=-2.12,height=2.48;
+ if(model==='golden'){
 // Tapa a la izquierda; el clip y el grabado comparten la cara frontal visible.
 profile([[0,-4.02],[.13,-4.01],[.25,-3.93],[.31,-3.78],[.35,-3.65],[.365,-3.38],[.365,-.62],[.352,-.49],[0,-.49]],material);
 profile([[0,-4.18],[.12,-4.17],[.23,-4.09],[.28,-3.99],[.30,-3.83],[.29,-3.72],[0,-3.72]],gold);
@@ -41,10 +60,36 @@ clipShape.bezierCurveTo(-.50,-2.1,-.49,-1.46,-.43,-1.06);
 clipShape.quadraticCurveTo(-.385,-.90,-.36,-1.06);
 clipShape.bezierCurveTo(-.43,-1.82,-.43,-2.76,-.39,-3.20);clipShape.quadraticCurveTo(-.36,-3.43,-.30,-3.52);clipShape.closePath();
 const clip=new THREE.Mesh(new THREE.ExtrudeGeometry(clipShape,{depth:.10,bevelEnabled:true,bevelThickness:.025,bevelSize:.018,bevelSegments:4,curveSegments:32}),gold);clip.position.z=.08;group.add(clip);
+
+ } else if(model==='glossy'){
+  // Perfil recto y brillante de la primera foto, con terminaciones negras.
+  cylinder(.373,.373,3.16,-2.08,material);cylinder(.365,.365,.36,-3.84,trim);
+  cylinder(.381,.381,.31,-.34,trim);cylinder(.38,.38,.024,-.52,trim);
+  profile([[0,-.18],[.355,-.18],[.354,1.0],[.34,2.6],[.327,3.76],[0,3.76]],material);
+  cylinder(.332,.332,.20,3.86,trim);addClip(trim);
+  radius=.379;
+ } else if(model==='matte'){
+  // Tapa mate y barril más redondeado y afinado, con doble anillo oscuro.
+  cylinder(.391,.391,2.91,-2.025,material);cylinder(.389,.389,.57,-3.77,trim);
+  cylinder(.395,.395,.42,-.37,trim);cylinder(.405,.405,.055,-.62,trim);cylinder(.401,.401,.055,-.12,trim);
+  profile([[0,-.12],[.38,-.12],[.385,.6],[.37,1.8],[.31,2.9],[.22,3.62],[.12,3.97],[0,4.04]],material);
+  profile([[0,3.5],[.25,3.5],[.18,3.84],[.07,4.10],[0,4.13]],trim);addClip(trim);
+  radius=.397;height=2.40;
+ } else {
+  // Modelo delgado: tapa y grabado a la derecha, detalles cromados.
+  profile([[0,-4.08],[.06,-4.04],[.16,-3.72],[.235,-3.36],[.265,-2.5],[.28,-.25],[0,-.25]],material);
+  profile([[0,-4.2],[.055,-4.15],[.13,-3.91],[.17,-3.72],[0,-3.72]],trim);
+  cylinder(.286,.286,.13,-.17,trim);
+  profile([[0,-.10],[.283,-.10],[.287,.2],[.287,3.70],[.278,3.91],[.23,3.99],[0,3.99]],material);
+  addClip(trim,1,true);radius=.294;engravingY=1.97;height=2.7;
+ }
+ label=new THREE.Mesh(new THREE.CylinderGeometry(radius,radius,height,128,1,true,-.82,1.64),labelMaterial);label.position.y=engravingY;group.add(label);
+}
 // Grabado únicamente en la cara frontal de la tapa, debajo del clip.
 const textCanvas=document.createElement('canvas');textCanvas.width=512;textCanvas.height=2048;
 const ctx=textCanvas.getContext('2d');const texture=new THREE.CanvasTexture(textCanvas);texture.colorSpace=THREE.SRGBColorSpace;
-const label=new THREE.Mesh(new THREE.CylinderGeometry(.371,.371,2.48,128,1,true,-.82,1.64),new THREE.MeshBasicMaterial({map:texture,toneMapped:false,transparent:true,side:THREE.DoubleSide,depthWrite:false}));label.position.y=-2.12;group.add(label);
+labelMaterial.map=texture;
+buildModel(state.model);
 function draw(){
  ctx.clearRect(0,0,512,2048);ctx.save();ctx.translate(256,1024);ctx.rotate(-Math.PI/2);ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=state.colorTexto;
  let size=state.fuente==='cursive'?320:265;const text=state.texto.trim()||'Tu nombre';
@@ -64,5 +109,5 @@ function resize(){
 new ResizeObserver(resize).observe(container);resize();
 function animate(){requestAnimationFrame(animate);if(!capturing)controls.update();renderer.render(scene,camera);}animate();
 
-return { update(design){state.texto=design.text||'Tu nombre';state.fuente=({script:'cursive',serif:'Georgia',sans:'Arial',mono:'monospace'})[design.font];state.color=design.body;state.colorTexto=design.ink;draw();},async capture(){capturing=true;controls.enabled=false;try{if(document.fonts)await document.fonts.ready;draw();renderer.render(scene,camera);return renderer.domElement.toDataURL('image/png');}finally{capturing=false;controls.enabled=true;}} };
+return { update(design){if(state.model!==design.model){state.model=design.model;buildModel(state.model);}state.texto=design.text||'Tu nombre';state.fuente=({script:'cursive',serif:'Georgia',sans:'Arial',mono:'monospace'})[design.font];state.color=design.body;state.colorTexto=design.ink;draw();},async capture(){capturing=true;controls.enabled=false;try{if(document.fonts)await document.fonts.ready;draw();renderer.render(scene,camera);return renderer.domElement.toDataURL('image/png');}finally{capturing=false;controls.enabled=true;}} };
 }

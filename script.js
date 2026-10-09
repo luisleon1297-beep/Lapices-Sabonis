@@ -1,15 +1,21 @@
-import {createPenPreview} from "./pen-preview.js?v=2";
-import {createOrderForm} from "./envio-pedido.js";
+import {createPenPreview} from "./pen-preview.js?v=3";
+import {createOrderForm} from "./envio-pedido.js?v=3";
 "use strict";
 
 // Correo que recibe los pedidos mediante FormSubmit; no requiere credenciales SMTP.
 // No coloques contraseñas de correo ni claves privadas en JavaScript.
 const CONFIG = Object.freeze({ maxCantidad: 999, correoPedidos: "luis_leonleon@hotmail.com" });
+const MODELS = Object.freeze({
+  golden: {name:"Clásico dorado"},
+  glossy: {name:"Brillante con detalles negros"},
+  matte: {name:"Mate con detalles negros"},
+  slim: {name:"Delgado con detalles plateados"}
+});
 const COLORS = Object.freeze({
-  black: { name: "Negro ónix", body: "#101213", ink: "#eadba5" },
-  silver: { name: "Plata", body: "#b7bcc1", ink: "#293f37" },
-  blue: { name: "Azul profundo", body: "#244c72", ink: "#f1dfac" },
-  rose: { name: "Rosa cobre", body: "#b77968", ink: "#30241f" }
+  black: { name: "Negro", body: "#101213", ink: "#eadba5" },
+  blue: { name: "Azul", body: "#174bad", ink: "#f4e4bd" },
+  red: { name: "Rojo", body: "#b51e2d", ink: "#f4e4bd" },
+  white: { name: "Blanco", body: "#f4f3ee", ink: "#35332e" }
 });
 const FONTS = Object.freeze({
   script: { name: "Cursiva elegante", family: '"Segoe Script", "Sabonis Manuscrita", cursive', style: "italic" },
@@ -24,7 +30,7 @@ const fontSelect = $("font-select");
 const quantityInput = $("quantity");
 const designForm = $("design-form");
 const orderForm = $("order-form");
-const storageKey = "sabonis-pedido-v2";
+const storageKey = "sabonis-pedido-v3";
 let cart = [];
 let sending = false;
 let capturing = false;
@@ -33,14 +39,14 @@ let toastTimer;
 // Solo se guarda el carrito en este dispositivo, nunca los datos de contacto.
 try {
   const saved = JSON.parse(localStorage.getItem(storageKey) || "[]");
-  if (Array.isArray(saved)) cart = saved.filter((item) => item && typeof item.text === "string" && item.text.trim().length > 0 && [...item.text].length <= 32 && FONTS[item.font] && COLORS[item.color] && Number.isInteger(item.quantity) && item.quantity >= 1 && item.quantity <= CONFIG.maxCantidad && typeof item.imageSnapshot === "string" && item.imageSnapshot.startsWith("data:image/png;base64,")).slice(0, 10).map((item) => ({text:item.text, font:item.font, color:item.color, quantity:item.quantity,imageSnapshot:item.imageSnapshot}));
+  if (Array.isArray(saved)) cart = saved.filter((item) => item && typeof item.text === "string" && item.text.trim().length > 0 && [...item.text].length <= 32 && MODELS[item.model] && FONTS[item.font] && COLORS[item.color] && Number.isInteger(item.quantity) && item.quantity >= 1 && item.quantity <= CONFIG.maxCantidad && typeof item.imageSnapshot === "string" && item.imageSnapshot.startsWith("data:image/png;base64,")).slice(0, 10).map((item) => ({model:item.model,text:item.text, font:item.font, color:item.color, quantity:item.quantity,imageSnapshot:item.imageSnapshot}));
 } catch { /* La interfaz funciona incluso sin almacenamiento disponible. */ }
 
 function saveCart() {
   try { localStorage.setItem(storageKey, JSON.stringify(cart)); } catch { /* Modo privado o espacio no disponible. */ }
 }
 function getDesign() {
-  return { text: textInput.value.trim(), font: fontSelect.value, color: designForm.elements.color.value, quantity: Number(quantityInput.value) };
+  return { model: $("model-select").value, text: textInput.value.trim(), font: fontSelect.value, color: designForm.elements.color.value, quantity: Number(quantityInput.value) };
 }
 function notify(message) {
   $("toast").textContent = message;
@@ -58,6 +64,7 @@ function updatePreview() {
   $("font-sample").textContent = design.text || "El arte de escribir";
   $("font-label").textContent = font.name;
   $("color-label").textContent = color.name;
+  $("model-label").textContent = MODELS[design.model].name;
   $("char-count").textContent = `${textInput.value.length} / 32`;
   textInput.setCustomValidity(textInput.value && !design.text ? "Escribe un nombre o mensaje; no solo espacios." : "");
 }
@@ -96,7 +103,7 @@ function renderCart() {
     title.style.fontStyle = FONTS[item.font].style;
     const meta = document.createElement("p");
     meta.className = "item-meta";
-    meta.textContent = `${COLORS[item.color].name} · ${FONTS[item.font].name}`;
+    meta.textContent = `${MODELS[item.model].name} · ${COLORS[item.color].name} · ${FONTS[item.font].name}`;
     const actions = document.createElement("div");
     actions.className = "item-actions";
     const label = document.createElement("label");
@@ -128,6 +135,7 @@ function renderCart() {
     edit.disabled = sending;
     edit.setAttribute("aria-label", `Usar el diseño ${item.text} en el personalizador`);
     edit.addEventListener("click", () => {
+      $("model-select").value=item.model;
       textInput.value = item.text; fontSelect.value = item.font; quantityInput.value = item.quantity;
       designForm.elements.color.value = item.color;
       updatePreview(); $("personalizar").scrollIntoView({behavior:"smooth"});
@@ -165,7 +173,7 @@ designForm.addEventListener("submit", async (event) => {
   try { design.imageSnapshot = await preview.capture(); }
   catch { notify("No se pudo capturar el diseño. Vuelve a intentarlo."); return; }
   finally { capturing = false; fields.forEach(field => field.disabled = false); }
-  const existing = cart.find((item) => item.text === design.text && item.font === design.font && item.color === design.color);
+  const existing = cart.find((item) => item.model === design.model && item.text === design.text && item.font === design.font && item.color === design.color);
   if (existing) {
     if (existing.quantity + design.quantity > CONFIG.maxCantidad) { notify(`Máximo ${CONFIG.maxCantidad} unidades por diseño.`); return; }
     existing.quantity += design.quantity;
@@ -194,7 +202,7 @@ orderForm.addEventListener("submit", (event) => {
   if (location.protocol === "file:") { setStatus("Abre la página publicada en GitHub Pages o usa un servidor local.", "error"); return; }
   const reference=`SB-${Date.now().toString(36).toUpperCase()}`;
   try {
-    const form=createOrderForm({order:cart,customer,reference,recipient:CONFIG.correoPedidos,colors:COLORS,fonts:FONTS});
+    const form=createOrderForm({order:cart,customer,reference,recipient:CONFIG.correoPedidos,colors:COLORS,fonts:FONTS,models:MODELS});
     document.body.append(form);
     // Abrir en otra pestaña conserva la página y el pedido. El servicio confirma allí.
     HTMLFormElement.prototype.submit.call(form);

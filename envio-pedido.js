@@ -1,5 +1,5 @@
 // Envío nativo multipart: FormSubmit admite campos de texto y archivos adjuntos.
-export function createOrderForm({order,customer,reference,recipient,colors,fonts}) {
+export function createOrderForm({order,customer,reference,recipient,colors,fonts,models}) {
   if (!order.length) throw new Error('El carrito está vacío.');
   const form=document.createElement('form');
   form.method='POST';form.action=`https://formsubmit.co/${encodeURIComponent(recipient)}`;
@@ -15,6 +15,7 @@ export function createOrderForm({order,customer,reference,recipient,colors,fonts
   order.forEach((item,index)=>{
     const number=index+1;
     field(`Diseño ${number} — Producto`,'Bolígrafo ejecutivo personalizado SABONIS');
+    field(`Diseño ${number} — Modelo`,models[item.model].name);
     field(`Diseño ${number} — Texto exacto`,item.text);
     field(`Diseño ${number} — Tipografía`,fonts[item.font].name);
     field(`Diseño ${number} — Color`,colors[item.color].name);
